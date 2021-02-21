@@ -1,63 +1,27 @@
 """
 #===========================================================================================#
 Subject         : SSW -555(Agile Methods for Software Development) 
-Assignment      : P02: Practice programming with GEDCOM data 
+Assignment      : P03: Continue programming, create version control repository
 Script Author   : Team#7
-Date            : 02/14/2021
+Date            : 02/20/2021
 Script Name     : SSW555-Porject.py
 #===========================================================================================#
 
 Purpose:
 --------
-Create a small GEDCOM file to use in testing your program.
-You may reuse the file you submitted for assignment Project 01 or create a new one.
-Make sure that it includes a NOTE record at the beginning with your name.
-
-Write a short program that:
-
-Reads each line of a GEDCOM file
-
-Prints "--> <input line>"
-
-Prints "<-- <level>|<tag>|<valid?> : Y or N|<arguments>"
-<level> is the level of the input line, e.g. 0, 1, 2
-<tag> is the tag associated with the line, e.g. 'INDI', 'FAM', 'DATE', ...
-<valid?> has the value 'Y' if the tag is one of the supported tags or 'N' otherwise.
-  The set of all valid tags for our project is specified in the Project Overview document.
-<arguments> is the rest of the line beyond the level and tag.
+After reading all of the data, print the unique identifiers and names of each of
+ the individuals in order by their unique identifiers. Then, for each family,
+ print the unique identifiers and names of the husbands and wives, in order
+ by unique family identifiers.
 ---------------------------------------------------------------------------------------------
 
-
-"""
-
-"""Sample input:
-
-0 NOTE dates after now
-1 SOUR Family Echo
-2 WWW http://www.familyecho.com  (Links to an external site.)
-0 bi00 INDI
-1 NAME Jimmy /Conners/
-Sample output:
-
---> 0 NOTE dates after now
-<-- 0|NOTE|Y|dates after now
---> 1 SOUR Family Echo
-<-- 1|SOUR|N|Family Echo
---> 2 WWW http://www.familyecho.com (Links to an external site.) (Links to an external site.)
-<-- 2|WWW|N|http://www.familyecho.com (Links to an external site.)
---> 0 bi00 INDI
-<-- 0|INDI|Y|bi00
---> 1 NAME Jimmy /Conners/
-<-- 1|NAME|Y|Jimmy /Conners/
 """
 
 import sys
+from prettytable import PrettyTable
 
 # welcome Message
-print('welcome to P02 Python Assignment\n')
-
-# purpose
-print('Practice programming with GEDCOM data\n')
+print('welcome to P03 Python Assignment\n')
 
 print('Enter file name with extension when prompted  e.g : test.ged \n')
 
@@ -80,7 +44,6 @@ Tag_Level = {
     'HEAD': 0,
     'TRLR': 0,
     'NOTE': 0}
-from prettytable import PrettyTable
 
 ID = []
 Name = []
@@ -108,19 +71,19 @@ def find_str(fhand):
     """
     global ID, Name, Ind, Fam, Hus, Wif
     ind_list = []
-    temp=[]
     for line in fhand:
-        # arguments = '' #default
         line = line.strip()  # Return a copy of the sequence with specified leading and trailing bytes removed (spaces)
         if len(line) > 1:  # ignored any data without 2 parameters.
             splitline = line.split(' ', 2)
             found, index = data_match(splitline)
             if index != 1:  # swapping 2 and 3 index if the tag is present in 3 element
                 splitline[1], splitline[2] = splitline[2], splitline[1]
+            if len(splitline) > 2:
+                if '@' in splitline[2]:
+                    splitline[2] = splitline[2].replace("@", "")
 
             if splitline[0] == '0' and splitline[1] == 'INDI':
                 if splitline[2] not in ID:
-                    splitline[2] = splitline[2].replace("@", "")
                     ID.append(splitline[2])
 
             if splitline[0] == '1' and splitline[1] == 'NAME':
@@ -146,18 +109,23 @@ def find_str(fhand):
     print(Ind)
 
     for f, h, w in zip(Fam, Hus, Wif):
+        hus_name = ''#default
+        wif_name = ''#default
+        for i in range(len(ind_list)):
+            if ind_list[i][0] == h:
+                hus_name = ind_list[i][1]
+            if ind_list[i][0] == w:
+                wif_name = ind_list[i][1]
 
-        hus_name = f.ind_list[Hus]
-        print("hus_name = ", hus_name)
-        #Ind.add_row([i, n])
-        #fam_list.append((i, n))
+        Family.add_row([f, hus_name, wif_name])
 
+    Family.sortby = 'ID'
+    print(Family)
 
 fname = input('Enter the file name: ')
 try:
     fhand = open(fname)  # open File
     sys.stdout = open('OutputFile.txt', 'w')
-
     find_str(fhand)
     fhand.close()  # Close the file
 except:
