@@ -106,7 +106,7 @@ def find_str(fhand):
         Ind.add_row([i, n])
         ind_list.append((i, n))
     Ind.sortby = 'ID'
-    print(Ind)
+    print("Individual ID and Name \n", Ind)
 
     for f, h, w in zip(Fam, Hus, Wif):
         hus_name = ''#default
@@ -120,7 +120,8 @@ def find_str(fhand):
         Family.add_row([f, hus_name, wif_name])
 
     Family.sortby = 'ID'
-    print(Family)
+
+    print(" Family info \n", Family)
 
 fname = input('Enter the file name: ')
 try:
